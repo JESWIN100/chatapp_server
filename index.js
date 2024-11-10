@@ -11,7 +11,7 @@ dbConnect()
 
 
 app.use(cors({
-  origin: "http://localhost:5173", 
+  origin: "https://chatapp-tau-five.vercel.app", 
   credentials: true, 
  
 }));
