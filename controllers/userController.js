@@ -177,7 +177,7 @@ export const checkUser=(async(req,res,next)=>{
 
 export const logout=async(req,res)=>{
     try {
-        res. res.clearCookie('jwt','',{
+        res.clearCookie('jwt','',{
             maxAge:0,
         })
         res.status(200).json({ message: "User logged out successfully" });
