@@ -85,6 +85,65 @@ export const userLogin = async (req, res) => {
     }
 };
 
+
+
+export const userLoginByUsername = async (req, res) => {
+    try {
+        const { userName } = req.body;
+
+        // Ensure the username is provided
+        if (!userName) {
+            return res.status(400).json({ message: "Username is required" });
+        }
+
+        // Find the user by username
+        const user = await User.findOne({ userName });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Generate a JWT token
+        jwtToken(user._id, res);
+
+        res.status(200).json({ message: "Login successful", user: { userName: user.userName, email: user.email } });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+
+export const userLoginByEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+       
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+   
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        jwtToken(user._id, res);
+
+        res.status(200).json({ message: "Login successful", user: { email: user.email } });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+
+
+
+
+
 export const userProfile=(async(req,res,next)=>{
   
 
@@ -130,6 +189,35 @@ export const logout=async(req,res)=>{
         
     }
 }
+export const updateProfilePic = async (req, res) => {
+    try {
+        const userId = req.user._conditions._id
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (req.file) {
+            // Upload the new image to Cloudinary
+            const uploadResult = await cloudinaryInstance.uploader.upload(req.file.path, { folder: "chatapp" });
+            const newImageUrl = uploadResult?.url;
+
+            user.profilePic = newImageUrl;
+
+            await user.save();
+            return res.status(200).json({ message: "Profile picture updated successfully", profilePic: newImageUrl });
+        }
+
+        return res.status(400).json({ message: "No image file uploaded" });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Server error" }); 
+    }
+};
+
+
 
 
 export const getUserBySearch=async(req,res)=>{
