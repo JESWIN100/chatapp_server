@@ -7,5 +7,5 @@ import Joi from "joi";
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
     gender: Joi.string().valid("male", "female", "other").required(),
-    profilePic: Joi.string().uri().optional()
+    image: Joi.string().uri().optional()
 });

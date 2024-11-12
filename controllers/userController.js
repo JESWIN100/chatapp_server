@@ -7,8 +7,11 @@ import Conversation from "../model/conversationSchema.js";
 
 export const userCreate = async (req, res) => {
     try {
-        const { fullName, userName, email, password, gender, profilePic } = req.body;
+        const { fullName, userName, email, password, gender } = req.body;
+        let profilePic = req.body.image;
 
+       
+        // Validate user input
         const { error } = userSchema.validate(req.body);
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
@@ -29,17 +32,18 @@ export const userCreate = async (req, res) => {
         // Hash the password
         const hashPassword = await bcrypt.hash(password, 10);
 
-        // Default image URL
-        let imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&s";
-
-        // Check if an image was uploaded
+        
+          
+        // Check if an image was uploaded, otherwise set a default image URL
         if (req.file) {
             const uploadResult = await cloudinaryInstance.uploader.upload(req.file.path, { folder: "chatapp" });
             if (uploadResult?.url) {
-                imageUrl = uploadResult.url;
+                profilePic = uploadResult.url;
             }
+        } else {
+            profilePic = req.body.image
         }
-
+        console.log("profilePic======",profilePic);
         // Create new user
         const newUser = new User({
             fullName,
@@ -47,18 +51,21 @@ export const userCreate = async (req, res) => {
             email,
             password: hashPassword,
             gender,
-            profilePic: imageUrl
+            profilePic
         });
 
         await newUser.save();
-        jwtToken(newUser._id,res)
+        
+        // Generate token and send response
+        jwtToken(newUser._id, res);
         res.status(201).json({ message: "User created successfully" });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).json({ message: "Server error" });
     }
 };
+
 
 export const userLogin = async (req, res) => {
     try {
