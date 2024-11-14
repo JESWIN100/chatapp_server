@@ -42,7 +42,7 @@ export const userCreate = async (req, res) => {
             }
         } else {
             profilePic = req.body.image
-        }
+        } 
         console.log("profilePic======",profilePic);
         // Create new user
         const newUser = new User({
@@ -88,19 +88,23 @@ export const userLogin = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "User Login Error" });
+        res.status(500).json({ message: error.message });
     }
 };
 
 
 
+
 export const userLoginByUsername = async (req, res) => {
     try {
-        const { userName } = req.body;
+        const { userName, password } = req.body;
 
-        // Ensure the username is provided
+        // Ensure both username and password are provided
         if (!userName) {
             return res.status(400).json({ message: "Username is required" });
+        }
+        if (!password) {
+            return res.status(400).json({ message: "Password is required" });
         }
 
         // Find the user by username
@@ -109,14 +113,28 @@ export const userLoginByUsername = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // Verify the password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Username or password does not match" });
+
+        }
+
         // Generate a JWT token
         jwtToken(user._id, res);
 
-        res.status(200).json({ message: "Login successful", user: { userName: user.userName, email: user.email } });
+        // Return success response without password
+        res.status(200).json({ 
+            message: "Login successful", 
+            user: { 
+                userName: user.userName, 
+                email: user.email 
+            } 
+        });
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message:error,message });
     }
 };
 
