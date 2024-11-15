@@ -134,7 +134,7 @@ export const userLoginByUsername = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message:error,message });
+        res.status(500).json({ message:error.message });
     }
 };
 
@@ -202,18 +202,20 @@ export const checkUser=(async(req,res,next)=>{
 
         export const logout = async (req, res) => {
             try {
-                // Clear the 'jwt' cookie
-                res.clearCookie('jwt', {
-                    httpOnly: true, // Set options if necessary, like httpOnly for security
-                    secure: true, // Set secure to true if using HTTPS
-                    sameSite: 'strict', // Set SameSite if needed
+                const token =  {
+                    expiresIn: '1s'
+                }
+                res.clearCookie('jwt', token, {
+                    maxAge: 0, 
+                    httpOnly: true,
+                    sameSite: "None",
+                    secure: true 
                 });
-                
                 res.status(200).json({ message: "User logged out successfully" });
                 
             } catch (error) {
                 console.error("Logout error:", error);
-                res.status(500).json({ message: "User logout error" });
+                res.status(500).json({ message: error.message });
             }
         };
         
