@@ -200,20 +200,23 @@ export const checkUser=(async(req,res,next)=>{
     
         } )
 
-export const logout=async(req,res)=>{
-    try {
-        res.clearCookie('jwt','',{
-            maxAge:0,
-        })
-        res.status(200).json({ message: "User logged out successfully" });
+        export const logout = async (req, res) => {
+            try {
+                // Clear the 'jwt' cookie
+                res.clearCookie('jwt', {
+                    httpOnly: true, // Set options if necessary, like httpOnly for security
+                    secure: true, // Set secure to true if using HTTPS
+                    sameSite: 'strict', // Set SameSite if needed
+                });
+                
+                res.status(200).json({ message: "User logged out successfully" });
+                
+            } catch (error) {
+                console.error("Logout error:", error);
+                res.status(500).json({ message: "User logout error" });
+            }
+        };
         
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "User logout Error" });
-        
-        
-    }
-}
 export const updateProfilePic = async (req, res) => {
     try {
         const userId = req.user._conditions._id

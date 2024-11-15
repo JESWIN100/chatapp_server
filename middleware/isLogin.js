@@ -20,7 +20,7 @@ import User from '../model/userSchema.js';
 
         
     } catch (error) {
-        // console.log("error from isLogin",error);
+        console.log("error from isLogin",error);
          res.status(500).send({scuess:false ,message:error.message})
         
     }
